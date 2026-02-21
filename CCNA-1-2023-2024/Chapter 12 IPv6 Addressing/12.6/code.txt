@@ -1,0 +1,46 @@
+R1#show ipv6 interface brief
+GigabitEthernet0/0/0   [up/up]
+    FE80::1:1
+    2001:DB8:ACAD:1::1
+GigabitEthernet0/0/1   [up/up]
+    FE80::2:1
+    2001:DB8:ACAD:2::1
+Serial0/1/0            [up/up]
+    FE80::3:1
+    2001:DB8:ACAD:3::1
+Serial0/1/1            [down/down]
+    unassigned
+GigabitEthernet0       [administratively down/down]
+    unassigned
+Verify connectivity from R1 to PC2 at 2001:db8:acad:1::10.
+
+R1#show ipv6 route
+IPv6 Routing Table - default - 7 entries
+Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
+       B - BGP, HA - Home Agent, MR - Mobile Router, R - RIP
+       H - NHRP, I1 - ISIS L1, I2 - ISIS L2, IA - ISIS interarea
+       IS - ISIS summary, D - EIGRP, EX - EIGRP external, NM - NEMO
+       ND - ND Default, NDp - ND Prefix, DCE - Destination, NDr - Redirect
+       O - OSPF Intra, OI - OSPF Inter, OE1 - OSPF ext 1, OE2 - OSPF ext 2
+       ON1 - OSPF NSSA ext 1, ON2 - OSPF NSSA ext 2, la - LISP alt
+       lr - LISP site-registrations, ld - LISP dyn-eid, a - Application
+C   2001:DB8:ACAD:1::/64 [0/0]
+     via GigabitEthernet0/0, directly connected
+L   2001:DB8:ACAD:1::1/128 [0/0]
+     via GigabitEthernet0/0, receive
+C   2001:DB8:ACAD:2::/64 [0/0]
+     via GigabitEthernet0/1, directly connected
+L   2001:DB8:ACAD:2::1/128 [0/0]
+     via GigabitEthernet0/1, receive
+C   2001:DB8:ACAD:3::/64 [0/0]
+     via Serial0/0/1, directly connected
+L   2001:DB8:ACAD:3::1/128 [0/0]
+     via Serial0/0/1, receive
+L   FF00::/8 [0/0]
+     via Null0, receive
+R1#ping 2001:db8:acad:1::10
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 2001:DB8:ACAD:1::10, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
+You successfully verified IPv6 address configuration.
