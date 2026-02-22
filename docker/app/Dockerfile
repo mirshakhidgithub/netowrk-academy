@@ -14,7 +14,13 @@ COPY . .
 # (build:icons and msw:init will run as part of `pnpm run build` instead)
 RUN pnpm install --no-frozen-lockfile --ignore-scripts
 
-# Build the Vue/Vite app (this runs vite build)
+# Generate iconify icons.css (required by the build)
+RUN pnpm run build:icons
+
+# Initialize MSW (creates public/mockServiceWorker.js)
+RUN pnpm run msw:init || true
+
+# Build the Vue/Vite app
 RUN pnpm run build
 
 # ─────────────────────────────────────────────
