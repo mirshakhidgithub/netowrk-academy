@@ -10,7 +10,8 @@ RUN npm install -g pnpm
 # Copy dependency files first for layer caching
 COPY package.json pnpm-lock.yaml ./
 
-RUN pnpm install --frozen-lockfile
+# Use --no-frozen-lockfile to handle lockfile version differences
+RUN pnpm install --no-frozen-lockfile
 
 # Copy full source for build
 COPY . .
