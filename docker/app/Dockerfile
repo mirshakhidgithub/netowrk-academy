@@ -62,8 +62,9 @@ WORKDIR /var/www/html
 # Copy PHP source (project is at repo root)
 COPY . .
 
-# Install PHP dependencies (production only, no dev)
-RUN composer install \
+# Update PHP dependencies (resolves lock file sync issues)
+RUN composer config --global safe.directory '/var/www/html' \
+    && composer update \
     --no-dev \
     --optimize-autoloader \
     --no-interaction \
