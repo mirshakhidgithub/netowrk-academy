@@ -21,6 +21,8 @@ done
 echo "📦 Running migrations..."
 php artisan migrate --force
 
+php artisan db:seed --force
+
 # Cache config & routes for performance
 echo "⚙️  Caching config, routes, views..."
 php artisan config:cache
