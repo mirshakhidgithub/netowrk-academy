@@ -7,12 +7,13 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
-COPY vue-laravel-version/typescript-version/full-version/package.json \
-     vue-laravel-version/typescript-version/full-version/pnpm-lock.yaml ./
+# Copy dependency files first for layer caching
+COPY package.json pnpm-lock.yaml ./
 
 RUN pnpm install --frozen-lockfile
 
-COPY vue-laravel-version/typescript-version/full-version/ ./
+# Copy full source for build
+COPY . .
 
 RUN pnpm run build
 
@@ -33,13 +34,13 @@ RUN apk add --no-cache \
     unzip \
     oniguruma-dev \
     && docker-php-ext-install \
-        pdo \
-        pdo_pgsql \
-        pgsql \
-        zip \
-        pcntl \
-        bcmath \
-        opcache \
+    pdo \
+    pdo_pgsql \
+    pgsql \
+    zip \
+    pcntl \
+    bcmath \
+    opcache \
     && pecl install redis \
     && docker-php-ext-enable redis
 
@@ -48,8 +49,8 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy PHP source
-COPY vue-laravel-version/typescript-version/full-version/ .
+# Copy PHP source (project is at repo root)
+COPY . .
 
 # Install PHP dependencies (production only, no dev)
 RUN composer install \
