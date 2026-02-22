@@ -42,6 +42,8 @@ RUN apk add --no-cache \
     zip \
     unzip \
     oniguruma-dev \
+    icu-dev \
+    && docker-php-ext-configure intl \
     && docker-php-ext-install \
     pdo \
     pdo_pgsql \
@@ -49,6 +51,7 @@ RUN apk add --no-cache \
     zip \
     pcntl \
     bcmath \
+    intl \
     opcache \
     && pecl install redis \
     && docker-php-ext-enable redis \
