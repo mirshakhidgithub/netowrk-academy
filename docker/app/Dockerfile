@@ -7,15 +7,14 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
-# Copy dependency files first for layer caching
-COPY package.json pnpm-lock.yaml ./
-
-# Use --no-frozen-lockfile to handle lockfile version differences
-RUN pnpm install --no-frozen-lockfile
-
-# Copy full source for build
+# Copy all source first (needed for postinstall scripts like build:icons)
 COPY . .
 
+# Install deps — ignore postinstall scripts that depend on source files
+# (build:icons and msw:init will run as part of `pnpm run build` instead)
+RUN pnpm install --no-frozen-lockfile --ignore-scripts
+
+# Build the Vue/Vite app (this runs vite build)
 RUN pnpm run build
 
 # ─────────────────────────────────────────────
