@@ -3,12 +3,6 @@ set -e
 
 echo "🚀 Starting CCNA Trainer..."
 
-# Configure PHP-FPM to use unix socket (for Nginx in same container)
-sed -i 's|listen = 127.0.0.1:9000|listen = /var/run/php-fpm.sock|' /usr/local/etc/php-fpm.d/www.conf
-sed -i 's|;listen.owner = nobody|listen.owner = nginx|' /usr/local/etc/php-fpm.d/www.conf
-sed -i 's|;listen.group = nobody|listen.group = nginx|' /usr/local/etc/php-fpm.d/www.conf
-sed -i 's|;listen.mode = 0660|listen.mode = 0660|' /usr/local/etc/php-fpm.d/www.conf
-
 # Generate APP_KEY if not set or empty
 if [ -z "$APP_KEY" ]; then
     echo "⚙️  Generating APP_KEY..."
