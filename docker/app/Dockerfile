@@ -34,6 +34,9 @@ RUN apk add --no-cache \
     nginx \
     supervisor \
     git \
+    autoconf \
+    g++ \
+    make \
     libpq-dev \
     libzip-dev \
     zip \
@@ -48,7 +51,8 @@ RUN apk add --no-cache \
     bcmath \
     opcache \
     && pecl install redis \
-    && docker-php-ext-enable redis
+    && docker-php-ext-enable redis \
+    && apk del autoconf g++ make
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
