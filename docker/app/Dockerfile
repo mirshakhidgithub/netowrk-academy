@@ -84,6 +84,7 @@ RUN chown -R www-data:www-data /var/www/html \
 # Copy configs
 COPY docker/app/nginx.conf /etc/nginx/http.d/default.conf
 COPY docker/app/php.ini /usr/local/etc/php/conf.d/custom.ini
+COPY docker/app/zzz-docker.conf /usr/local/etc/php-fpm.d/zzz-docker.conf
 COPY docker/app/supervisord.conf /etc/supervisord.conf
 COPY docker/app/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
