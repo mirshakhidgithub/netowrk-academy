@@ -16,10 +16,10 @@ Route::prefix('auth')->group(function () {
     Route::middleware('throttle:5,1')->group(function () {
         Route::post('login', [AuthController::class, 'login']);
         Route::post('forgot-password', [ForgotPasswordController::class, 'send']);
+        Route::post('reset-password', [ResetPasswordController::class, 'reset']);
     });
 
     Route::post('register', [AuthController::class, 'register']);
-    Route::post('reset-password', [ResetPasswordController::class, 'reset']);
 });
 
 /*

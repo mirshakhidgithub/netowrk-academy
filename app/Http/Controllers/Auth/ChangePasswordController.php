@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ChangePasswordRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class ChangePasswordController extends Controller
 {
@@ -15,7 +16,7 @@ class ChangePasswordController extends Controller
     public function update(ChangePasswordRequest $request): JsonResponse
     {
         $request->user()->update([
-            'password' => $request->validated('password'),
+            'password' => Hash::make($request->validated('password')),
         ]);
 
         // Revoke all other tokens so other sessions must re-login
