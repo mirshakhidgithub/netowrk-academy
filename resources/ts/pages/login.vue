@@ -60,17 +60,18 @@ const login = async () => {
 
     const { accessToken, userData, userAbilityRules } = res
 
+    // Set accessToken first — router guard checks it
+    useCookie('accessToken').value = accessToken
+    useCookie('userData').value = userData
     useCookie('userAbilityRules').value = userAbilityRules
     ability.update(userAbilityRules)
 
-    useCookie('userData').value = userData
-    useCookie('accessToken').value = accessToken
+    const redirectTo = route.query.to ? String(route.query.to) : '/'
 
-    // Redirect to `to` query if exist or redirect to index route
-    // ❗ nextTick is required to wait for DOM updates and later redirect
-    await nextTick(() => {
-      router.replace(route.query.to ? String(route.query.to) : '/')
-    })
+    await router.push(redirectTo)
+    // Force reload if guard redirected back to login (edge case)
+    if (router.currentRoute.value.name === 'login')
+      window.location.href = redirectTo
   }
   finally {
     isLoading.value = false

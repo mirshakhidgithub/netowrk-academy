@@ -65,14 +65,17 @@ const register = async () => {
 
     const { accessToken, userData, userAbilityRules } = res
 
+    // Set cookies synchronously before navigation so router guard sees them
+    useCookie('accessToken').value = accessToken
+    useCookie('userData').value = userData
     useCookie('userAbilityRules').value = userAbilityRules
     ability.update(userAbilityRules)
-    useCookie('userData').value = userData
-    useCookie('accessToken').value = accessToken
 
-    await nextTick(() => {
-      router.replace('/')
-    })
+    // Use router.push with window.location fallback to avoid guard race condition
+    await router.push('/')
+    // Force reload if guard redirected back to register (edge case)
+    if (router.currentRoute.value.name === 'register')
+      window.location.href = '/'
   }
   catch (err) {
     console.error(err)
