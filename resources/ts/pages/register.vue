@@ -49,7 +49,7 @@ const register = async () => {
   isLoading.value = true
   errors.value = {}
   try {
-    const res = await $api<AuthResponse>('/auth/register', {
+    const res = await $api('/auth/register', {
       method: 'POST',
       body: {
         name: form.value.name,
@@ -63,19 +63,11 @@ const register = async () => {
       },
     })
 
-    const { accessToken, userData, userAbilityRules } = res
-
-    // Set cookies synchronously before navigation so router guard sees them
-    useCookie('accessToken').value = accessToken
-    useCookie('userData').value = userData
-    useCookie('userAbilityRules').value = userAbilityRules
-    ability.update(userAbilityRules)
-
-    // Use router.push with window.location fallback to avoid guard race condition
-    await router.push('/')
-    // Force reload if guard redirected back to register (edge case)
-    if (router.currentRoute.value.name === 'register')
-      window.location.href = '/'
+    // Redirect to email verification page
+    await router.push({
+      name: 'verify-email',
+      query: { email: form.value.email },
+    })
   }
   catch (err) {
     console.error(err)

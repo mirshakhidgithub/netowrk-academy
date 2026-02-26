@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,6 +21,10 @@ Route::prefix('auth')->group(function () {
     });
 
     Route::post('register', [AuthController::class, 'register']);
+
+    // Email verification routes
+    Route::post('verify-email/send', [VerifyEmailController::class, 'send']);
+    Route::post('verify-email/verify', [VerifyEmailController::class, 'verify']);
 });
 
 /*

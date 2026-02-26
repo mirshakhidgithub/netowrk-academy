@@ -43,9 +43,33 @@ const credentials = ref({
 
 const rememberMe = ref(false)
 const isLoading = ref(false)
+const showVerificationPrompt = ref(false)
+const unverifiedEmail = ref('')
+
+const sendVerificationCode = async () => {
+  try {
+    await $api('/auth/verify-email/send', {
+      method: 'POST',
+      body: {
+        email: unverifiedEmail.value,
+      },
+    })
+
+    // Redirect to verify email page
+    await router.push({
+      name: 'verify-email',
+      query: { email: unverifiedEmail.value },
+    })
+  }
+  catch (error) {
+    console.error(error)
+  }
+}
 
 const login = async () => {
   isLoading.value = true
+  showVerificationPrompt.value = false
+  
   try {
     const res = await $api('/auth/login', {
       method: 'POST',
@@ -54,7 +78,16 @@ const login = async () => {
         password: credentials.value.password,
       },
       onResponseError({ response }) {
-        errors.value = response._data.errors
+        if (response.status === 422) {
+          const errorData = response._data
+          errors.value = errorData.errors || {}
+
+          // Check if error is about unverified email
+          if (errorData.errors?.email?.[0]?.includes('verify') && errorData.email) {
+            unverifiedEmail.value = errorData.email
+            showVerificationPrompt.value = true
+          }
+        }
       },
     })
 
@@ -235,6 +268,43 @@ const onSubmit = () => {
       </VCard>
     </VCol>
   </VRow>
+
+  <!-- Email Verification Dialog -->
+  <VDialog
+    v-model="showVerificationPrompt"
+    width="500"
+  >
+    <VCard>
+      <VCardTitle class="text-center pa-6">
+        Verify Your Email
+      </VCardTitle>
+
+      <VCardText class="text-center pb-2">
+        <p class="text-body-2 mb-4">
+          Please verify your email address to continue.
+        </p>
+        <p class="text-sm text-disabled">
+          Email: <strong>{{ unverifiedEmail }}</strong>
+        </p>
+      </VCardText>
+
+      <VCardActions class="justify-center gap-3 pa-4">
+        <VBtn
+          variant="tonal"
+          color="secondary"
+          @click="showVerificationPrompt = false"
+        >
+          Back
+        </VBtn>
+        <VBtn
+          color="primary"
+          @click="sendVerificationCode"
+        >
+          Verify Email
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <style lang="scss">

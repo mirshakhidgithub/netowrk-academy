@@ -23,25 +23,29 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Admin',
                 'username' => 'admin',
                 'password' => Hash::make('Admin123!'),
+                'role' => 'admin',
             ],
         );
 
-        // Demo users (for testing)
+        // Demo admin user (for testing)
         User::updateOrCreate(
             ['email' => 'admin@demo.com'],
             [
                 'name' => 'John Doe',
                 'username' => 'johndoe',
                 'password' => Hash::make('admin'),
+                'role' => 'admin',
             ],
         );
 
+        // Demo client user (for testing)
         User::updateOrCreate(
             ['email' => 'client@demo.com'],
             [
                 'name' => 'Jane Doe',
                 'username' => 'janedoe',
                 'password' => Hash::make('client'),
+                'role' => 'client',
             ],
         );
     }
