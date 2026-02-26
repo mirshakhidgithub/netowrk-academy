@@ -7,16 +7,14 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
-# 1. Copy only lockfile + package.json first → кэш node_modules не сбрасывается при изменении кода
+# 1. Copy only lockfile + package.json first → node_modules кэшируется отдельно
 COPY package.json pnpm-lock.yaml ./
 
 # Install deps — ignore postinstall scripts that depend on source files
 RUN pnpm install --no-frozen-lockfile --ignore-scripts
 
-# 2. Copy остальные конфиги для сборки
-COPY vite.config.ts tsconfig.json themeConfig.ts ./
-COPY resources/ ./resources/
-COPY public/ ./public/
+# 2. Copy весь исходный код (нужен для сборки стилей, компонентов и т.д.)
+COPY . .
 
 # Generate iconify icons.css (required by the build)
 RUN pnpm run build:icons
