@@ -11,7 +11,7 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
 
 # Install deps — ignore postinstall scripts that depend on source files
-RUN pnpm install --frozen-lockfile --ignore-scripts
+RUN pnpm install --no-frozen-lockfile --ignore-scripts
 
 # 2. Copy остальные конфиги для сборки
 COPY vite.config.ts tsconfig.json themeConfig.ts ./
