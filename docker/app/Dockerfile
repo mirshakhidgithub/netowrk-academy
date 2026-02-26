@@ -10,8 +10,8 @@ RUN npm install -g pnpm
 # 1. Copy only lockfile + package.json first → node_modules кэшируется отдельно
 COPY package.json pnpm-lock.yaml ./
 
-# Install deps — ignore postinstall scripts that depend on source files
-RUN pnpm install --no-frozen-lockfile --ignore-scripts
+# Install deps — with scripts enabled so all packages are properly installed
+RUN pnpm install --no-frozen-lockfile
 
 # 2. Copy весь исходный код (нужен для сборки стилей, компонентов и т.д.)
 COPY . .
