@@ -7,12 +7,16 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
-# Copy all source first (needed for postinstall scripts like build:icons)
-COPY . .
+# 1. Copy only lockfile + package.json first → кэш node_modules не сбрасывается при изменении кода
+COPY package.json pnpm-lock.yaml ./
 
 # Install deps — ignore postinstall scripts that depend on source files
-# (build:icons and msw:init will run as part of `pnpm run build` instead)
-RUN pnpm install --no-frozen-lockfile --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
+
+# 2. Copy остальные конфиги для сборки
+COPY vite.config.ts tsconfig.json themeConfig.ts ./
+COPY resources/ ./resources/
+COPY public/ ./public/
 
 # Generate iconify icons.css (required by the build)
 RUN pnpm run build:icons
@@ -24,11 +28,11 @@ RUN pnpm run msw:init || true
 RUN pnpm run build
 
 # ─────────────────────────────────────────────
-# Stage 2: PHP 8.3 + Nginx (single container)
+# Stage 2: PHP extensions base (редко меняется)
 # ─────────────────────────────────────────────
-FROM php:8.3-fpm-alpine AS app
+FROM php:8.4-fpm-alpine AS php_base
 
-# Install system dependencies + Nginx + Supervisor
+# Install system deps + compile PHP extensions — этот слой кэшируется
 RUN apk add --no-cache \
     bash \
     nginx \
@@ -57,21 +61,32 @@ RUN apk add --no-cache \
     && docker-php-ext-enable redis \
     && apk del autoconf g++ make
 
+# ─────────────────────────────────────────────
+# Stage 3: PHP app (меняется при каждом деплое)
+# ─────────────────────────────────────────────
+FROM php_base AS app
+
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy PHP source (project is at repo root)
-COPY . .
+# 3. Copy только composer файлы → кэш vendor не сбрасывается при изменении кода
+COPY composer.json composer.lock ./
 
-# Fix git safe.directory for composer, then resolve all dependencies
-RUN git config --global --add safe.directory /var/www/html \
-    && composer update \
+# Install PHP зависимости (использует composer.lock — детерминированно)
+RUN composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction \
-    --prefer-dist
+    --prefer-dist \
+    --no-scripts
+
+# 4. Copy весь код приложения
+COPY . .
+
+# Run composer scripts (post-autoload-dump и т.д.)
+RUN composer run-script post-autoload-dump || true
 
 # Copy built Vue assets from frontend stage
 COPY --from=frontend /app/public/build ./public/build
